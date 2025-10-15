@@ -13,20 +13,29 @@ Backend del progetto **EcoAlert**, un sistema informativo web e mobile per la se
 ## 📁 Struttura del progetto
 
 EcoAlert-be/
+
 ├── src/
+
 │ ├── main/java/... # codice sorgente backend
+
 │ ├── main/resources/ # file di configurazione (application.yml)
+
 │ └── test/ # test JUnit
+
 ├── api/
+
 │ └── EcoAlert.yaml # definizione OpenAPI delle API
+
 ├── pom.xml # configurazione Maven
+
 └── README.md
 
 ## 🚀 Avvio del progetto
 
 ### 1️⃣ Clonare il repository
 
-git clone https://github.com/Antonio1373/EcoAlert-be.git
+**git clone https://github.com/Antonio1373/EcoAlert-be.git**
+
 cd EcoAlert-be
 
 ### 2️⃣ Configurare il database
