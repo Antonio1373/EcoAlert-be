@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: EcoAlert API
+  description: API per autenticazione e gestione utenti del sistema EcoAlert.
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:8080/API
+    description: Server locale di sviluppo.
+
+paths:
+  /login:
+    post:
+      summary: Autenticazione utente
+      description:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+    
+      responses:
+        '200':
+          description: Login avvenuto con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: JWT123
+                  ruolo:
+                    type: string
+                    example: "cittadino"
+        '401':
+          description: Credenziali non valide
+      
+  /register:
+    post:
+      summary: Registrazione nuovo utente
+      description:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  example: Mario
+                cognome:
+                  type: string
+                  example: Rossi
+                email:
+                  type: string
+                  example: Mario.Rossi@example.com
+                password:
+                  type: string
+                  example: password123
+                ruolo:
+                  type: string
+                  enum:
+                    - cittadino
+                    - amministratore
+                  example: cittadino
+      responses:
+        '201':
+          description: Utente registrato con successo 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Registrazione completata
+                  userId:
+                    type: integer
+                    example: 1
+        '400':
+          description: Dati non validi o email già esistente
+
+  /users/{id}:
+    get:
+      summary: Recupera informazioni utente tramite ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID dell'utente da recuperare
+      responses:
+        '200':
+          description: Informazioni utente recuperate con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  nome:
+                    type: string
+                    example: Mario
+                  cognome:
+                    type: string
+                    example: Rossi
+                  email:
+                    type: string
+                    example: Mario.Rossi@example.com
+                  ruolo:
+                    type: string
+                    example: cittadino
+        '404':
+          description: Utente non trovato
