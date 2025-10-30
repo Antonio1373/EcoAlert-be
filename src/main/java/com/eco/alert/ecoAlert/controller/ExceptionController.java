@@ -3,6 +3,8 @@ package com.eco.alert.ecoAlert.controller;
 
 import com.eco.alert.ecoAlert.exception.EmailDuplicataException;
 import com.eco.alert.ecoAlert.exception.LoginException;
+import com.eco.alert.ecoAlert.exception.UtenteNonCittadinoException;
+import com.eco.alert.ecoAlert.exception.UtenteNonTrovatoException;
 import com.ecoalert.model.Error;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -31,4 +33,23 @@ public class ExceptionController {
         log.error("LoginException:  {}", exception.getMessage());
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(UtenteNonTrovatoException.class)
+    public ResponseEntity<Error> handleUserNotFound(UtenteNonTrovatoException ex) {
+        com.ecoalert.model.Error error = new com.ecoalert.model.Error();
+        error.detail("Utente non trovato");
+        error.message(ex.getMessage());
+        log.error("UtenteNonTrovatoException: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UtenteNonCittadinoException.class)
+    public ResponseEntity<Error> handleUserNotFound(UtenteNonCittadinoException ex) {
+        com.ecoalert.model.Error error = new com.ecoalert.model.Error();
+        error.detail("Solo i cittadini possono creare segnalazioni");
+        error.message(ex.getMessage());
+        log.error("UtenteNonCittadinoException: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
 }
