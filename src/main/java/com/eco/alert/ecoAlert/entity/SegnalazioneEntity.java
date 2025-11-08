@@ -1,5 +1,6 @@
 package com.eco.alert.ecoAlert.entity;
 
+import com.eco.alert.ecoAlert.enums.StatoSegnalazione;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,10 +23,19 @@ public class SegnalazioneEntity {
     @Column(name = "longitudine", nullable = false)
     private Double longitudine;
 
+    /**
+     * Stato corrente della segnalazione.
+     * Salvato come stringa nel database.
+     */
+    @Enumerated(EnumType.STRING)
     @Column(name = "stato", nullable = false)
-    private String stato = "in attesa";
+    private StatoSegnalazione stato = StatoSegnalazione.INSERITO;
 
     @ManyToOne
-    @JoinColumn(name = "id", nullable = false)
-    private UtenteEntity utente;
+    @JoinColumn(name = "id_cittadino", nullable = false)
+    private CittadinoEntity cittadino;
+
+    @ManyToOne
+    @JoinColumn(name = "id_ente", nullable = false)
+    private EnteEntity ente;
 }

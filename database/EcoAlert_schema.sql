@@ -30,7 +30,7 @@ CREATE TABLE Cittadino (
 -- TABELLA: ENTE (sottoclasse di Utente)
 -- =====================================
 CREATE TABLE Ente (
-    id_Ente INT PRIMARY KEY AUTO_INCREMENT,
+    idEnte INT PRIMARY KEY AUTO_INCREMENT,
     Nome_Ente VARCHAR(50) NOT NULL,
     Paese VARCHAR(100) NOT NULL,
     Nazione VARCHAR(100) NOT NULL,
