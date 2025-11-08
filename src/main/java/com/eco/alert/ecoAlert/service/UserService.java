@@ -34,13 +34,13 @@ public class UserService {
         log.info("Creazione nuovo utente...");
 
         UtenteEntity utenteConStessaMail = utenteDao.findByEmail(input.getEmail());
-        if(utenteConStessaMail!= null){
+        if (utenteConStessaMail != null) {
             throw new EmailDuplicataException();
         }
 
         UtenteOutput output = new UtenteOutput();
 
-        if("cittadino".equalsIgnoreCase(input.getRuolo())) {
+        if ("cittadino".equalsIgnoreCase(input.getRuolo())) {
             CittadinoEntity cittadino = new CittadinoEntity();
             cittadino.setEmail(input.getEmail());
             cittadino.setPassword(input.getPassword());
@@ -48,20 +48,28 @@ public class UserService {
             cittadino.setCognome(input.getCognome());
             cittadino.setNazione(input.getNazione());
             cittadino.setCitta(input.getPaese());
-            cittadinoDao.save(cittadino);
 
-            output.setId(cittadino.getId());
-        }else if("ente".equalsIgnoreCase(input.getRuolo())){
+            CittadinoEntity saved = cittadinoDao.save(cittadino); // salva e ottieni l’ID generato
+
+            output.setId(saved.getId());
+            output.setEmail(saved.getEmail());
+            output.setRuolo("cittadino");
+
+        } else if ("ente".equalsIgnoreCase(input.getRuolo())) {
             EnteEntity ente = new EnteEntity();
             ente.setEmail(input.getEmail());
             ente.setPassword(input.getPassword());
             ente.setNomeEnte(input.getNome());
             ente.setCittaEnte(input.getPaese());
             ente.setNazioneEnte(input.getNazione());
-            enteDao.save(ente);
 
-            output.setId(ente.getId());
-        }else {
+            EnteEntity saved = enteDao.save(ente);
+
+            output.setId(saved.getId());
+            output.setEmail(saved.getEmail());
+            output.setRuolo("ente");
+
+        } else {
             throw new IllegalArgumentException("Ruolo non valido.");
         }
 
@@ -93,7 +101,6 @@ public class UserService {
         // Cerca l'utente nella tabella base
         UtenteEntity utente = utenteDao.findById(id)
                 .orElseThrow(() -> new UtenteNonTrovatoException("Utente con ID " + id + " non trovato."));
-
 
         UtenteDettaglioOutput output = new UtenteDettaglioOutput();
         output.setId(utente.getId());

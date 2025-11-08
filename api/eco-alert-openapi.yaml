@@ -4,11 +4,73 @@ info:
   version: 1.0.0
   description: API per la gestione utenti, autenticazione e home page
 
+tags:
+  - name: Segnalazioni
+    description: Operazioni sulle segnalazioni ambientali
+  - name: Enti
+    description: Operazioni sugli enti
+  - name: Auth
+    description: Login e registrazione
+  - name: Utenti
+    description: Informazioni sugli utenti
+
 paths:
+
+  /segnalazioni/{idSegnalazione}/stato:
+    put:
+      tags:
+        - Segnalazioni
+      summary: Aggiorna lo stato di una segnalazione
+      description: Permette a un ente di aggiornare lo stato di una segnalazione (da INSERITO a ELABORATO, SOSPESO o CHIUSO)
+      operationId: updateSegnalazioneStatus
+      parameters:
+        - name: idSegnalazione
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: idEnte
+          in: query
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatoUpdateInput'
+      responses:
+        '200':
+          description: Stato aggiornato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegnalazioneOutput'
+        '400':
+          description: Richiesta non valida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Segnalazione o ente non trovati
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Errore interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /enti:
     get:
+      tags:
+        - Enti
       summary: Ottiene la lista di tutti gli enti
-      description: Restituisce l'elenco completo di tutti gli enti registrati nel sistema
       operationId: getAllEnti
       responses:
         '200':
@@ -19,22 +81,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/EnteOutput'
-              examples:
-                esempio:
-                  summary: Esempio di risposta
-                  value:
-                    - id: 1
-                      nomeEnte: "Comune di Roma"
-                      paese: "Roma"
-                      nazione: "Italia"
-                      email: "info@comune.roma.it"
-                    - id: 2
-                      nomeEnte: "Comune di Milano"
-                      paese: "Milano"
-                      nazione: "Italia"
-                      email: "info@comune.milano.it"
         '500':
-          description: Errore interno del server
+          description: Errore interno
           content:
             application/json:
               schema:
@@ -42,8 +90,9 @@ paths:
 
   /login:
     post:
+      tags:
+        - Auth
       summary: Effettua il login dell'utente
-      description: Verifica le credenziali e restituisce un token di autenticazione
       operationId: login
       requestBody:
         required: true
@@ -53,47 +102,29 @@ paths:
               $ref: '#/components/schemas/LoginInput'
       responses:
         '200':
-          description: Login effettuato con successo
+          description: Login effettuato
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginOutput'
-              examples:
-                success:
-                  summary: Login riuscito
-                  value:
-                    userId: 1
-                    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                    ruolo: "cittadino"
         '401':
           description: Credenziali non valide
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                unauthorized:
-                  summary: Login fallito
-                  value:
-                    message: "Invalid credentials"
-                    detail: "The provided email or password is incorrect"
         '500':
-          description: Errore interno del server
+          description: Errore interno
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                serverError:
-                  summary: Errore interno
-                  value:
-                    message: "Internal Server Error"
-                    detail: "Unexpected exception during login process"
 
   /sign-in:
     post:
+      tags:
+        - Auth
       summary: Registra un nuovo utente
-      description: Inserisce un nuovo utente nel database
       operationId: signIn
       requestBody:
         required: true
@@ -103,7 +134,7 @@ paths:
               $ref: '#/components/schemas/UtenteInput'
       responses:
         '201':
-          description: Utente creato con successo
+          description: Utente creato
           content:
             application/json:
               schema:
@@ -114,78 +145,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                invalidInput:
-                  summary: Errore di validazione
-                  value:
-                    message: "Invalid input data"
-                    detail: "The email field must contain a valid address"
         '500':
-          description: Errore interno del server
+          description: Errore interno
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                serverError:
-                  summary: Errore interno
-                  value:
-                    message: "Internal Server Error"
-                    detail: "Unexpected exception during user registration"
 
   /user/{id}:
     get:
+      tags:
+        - Utenti
       summary: Ottiene i dettagli di un utente
-      description: Restituisce le informazioni di un utente (Cittadino o Ente) dato il suo ID
       operationId: getUserById
       parameters:
         - name: id
           in: path
           required: true
-          description: Identificativo univoco dell'utente
           schema:
             type: integer
       responses:
         '200':
-          description: Dettagli dell'utente trovati con successo
+          description: Utente trovato
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UtenteDettaglioOutput'
-              examples:
-                cittadino:
-                  summary: Esempio cittadino
-                  value:
-                    id: 1
-                    ruolo: "cittadino"
-                    nome: "Mario"
-                    cognome: "Rossi"
-                    paese: "Roma"
-                    nazione: "Italia"
-                    email: "mario.rossi@example.com"
-                ente:
-                  summary: Esempio ente
-                  value:
-                    id: 2
-                    ruolo: "ente"
-                    nomeEnte: "Comune di Milano"
-                    paese: "Milano"
-                    nazione: "Italia"
-                    email: "info@comune.milano.it"
         '404':
           description: Utente non trovato
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                notFound:
-                  summary: Nessun utente trovato
-                  value:
-                    message: "User not found"
-                    detail: "No user exists with the provided ID"
         '500':
-          description: Errore interno del server
+          description: Errore interno
           content:
             application/json:
               schema:
@@ -193,14 +186,14 @@ paths:
 
   /user/{id}/segnalazioni:
     post:
+      tags:
+        - Segnalazioni
       summary: Crea una nuova segnalazione
-      description: Permette a un cittadino di creare una nuova segnalazione ambientale
       operationId: createSegnalazione
       parameters:
         - name: id
           in: path
           required: true
-          description: ID del cittadino che effettua la segnalazione
           schema:
             type: integer
       requestBody:
@@ -211,47 +204,25 @@ paths:
               $ref: '#/components/schemas/SegnalazioneInput'
       responses:
         '201':
-          description: Segnalazione creata con successo
+          description: Segnalazione creata
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SegnalazioneOutput'
-              examples:
-                success:
-                  summary: Segnalazione registrata
-                  value:
-                    id: 101
-                    descrizione: "Discarica abusiva vicino al fiume"
-                    latitudine: 41.9028
-                    longitudine: 12.4964
-                    stato: "in_attesa"
-                    idUtente: 1
         '400':
-          description: Dati non validi o utente non autorizzato (non cittadino)
+          description: Dati non validi
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                invalidRole:
-                  summary: Utente non autorizzato
-                  value:
-                    message: "Ruolo non autorizzato"
-                    detail: "Solo i cittadini possono creare segnalazioni"
         '404':
           description: Utente non trovato
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                notFound:
-                  summary: Nessun cittadino trovato
-                  value:
-                    message: "User not found"
-                    detail: "Nessun cittadino esistente con l'ID fornito"
         '500':
-          description: Errore interno del server
+          description: Errore interno
           content:
             application/json:
               schema:
@@ -261,38 +232,27 @@ components:
   schemas:
     EnteOutput:
       type: object
-      description: Informazioni di un ente
       properties:
         id:
           type: integer
-          example: 1
         nomeEnte:
           type: string
-          example: "Comune di Roma"
         paese:
           type: string
-          example: "Roma"
         nazione:
           type: string
-          example: "Italia"
         email:
           type: string
-          example: "info@comune.roma.it"
 
     Error:
       type: object
-      description: Dettagli sull'errore restituito dall'API
       properties:
         code:
           type: integer
-          example: 1001
-          description: Codice numerico identificativo dell'errore
         message:
           type: string
-          example: "User not found"
         detail:
           type: string
-          example: "No user exists with the provided email address"
 
     LoginInput:
       type: object
@@ -302,134 +262,131 @@ components:
       properties:
         email:
           type: string
-          format: email
-          example: mario.rossi@example.com
         password:
           type: string
-          format: password
-          example: mySecretPass123
 
     LoginOutput:
       type: object
-      description: Risposta di successo per il login
       properties:
         userId:
           type: integer
-          example: 1
         token:
           type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         ruolo:
           type: string
-          example: cittadino
 
     SegnalazioneInput:
       type: object
+      properties:
+        descrizione:
+          type: string
+          description: Testo della segnalazione
+        latitudine:
+          type: number
+          format: double
+          x-java-type: java.lang.Double
+          description: Latitudine della posizione della segnalazione
+        longitudine:
+          type: number
+          format: double
+          x-java-type: java.lang.Double
+          description: Longitudine della posizione della segnalazione
+        idEnte:
+          type: integer
+          description: ID dell'ente a cui associare la segnalazione
       required:
         - descrizione
         - latitudine
         - longitudine
-      properties:
-        descrizione:
-          type: string
-          example: "Discarica abusiva vicino al fiume"
-        latitudine:
-          type: number
-          format: double
-          example: 41.9028
-        longitudine:
-          type: number
-          format: double
-          example: 12.4964
+        - idEnte
 
     SegnalazioneOutput:
       type: object
-      description: Dettagli della segnalazione creata
       properties:
         id:
           type: integer
-          example: 101
+          description: ID della segnalazione
+        idUtente:
+          type: integer
+          description: ID del cittadino che ha creato la segnalazione
+        idEnte:
+          type: integer
+          description: ID dell'ente associato alla segnalazione
         descrizione:
           type: string
-          example: "Discarica abusiva vicino al fiume"
+          description: Testo della segnalazione
         latitudine:
           type: number
           format: double
-          example: 41.9028
+          x-java-type: java.lang.Double
+          description: Latitudine della segnalazione
         longitudine:
           type: number
           format: double
-          example: 12.4964
+          x-java-type: java.lang.Double
+          description: Longitudine della segnalazione
         stato:
-          type: string
-          example: "in_attesa"
-        idUtente:
-          type: integer
-          example: 1
+          $ref: '#/components/schemas/StatoEnum'
+          description: Stato della segnalazione
 
     UtenteDettaglioOutput:
       type: object
-      description: Dettaglio completo di un utente (cittadino o ente)
       properties:
         id:
           type: integer
-          example: 1
         ruolo:
           type: string
-          example: cittadino
         email:
           type: string
-          example: mario.rossi@example.com
         nome:
           type: string
-          example: Mario
         cognome:
           type: string
-          example: Rossi
         nomeEnte:
           type: string
-          example: Comune di Milano
         paese:
           type: string
-          example: Roma
         nazione:
           type: string
-          example: Italia
 
     UtenteInput:
       type: object
-      required:
-        - nome
-        - email
-        - password
       properties:
         nome:
           type: string
-          example: Mario
         cognome:
           type: string
-          example: Rossi
         email:
           type: string
-          format: email
-          example: mario.rossi@example.com
         password:
           type: string
-          format: password
-          example: mySecretPass123
         paese:
           type: string
-          example: Roma
         nazione:
           type: string
-          example: Italia
         ruolo:
           type: string
-          example: cittadino
 
     UtenteOutput:
       type: object
       properties:
         id:
           type: integer
-          example: 1
+        email:
+          type: string
+        ruolo:
+          type: string
+
+    StatoUpdateInput:
+      type: object
+      properties:
+        stato:
+          $ref: '#/components/schemas/StatoEnum'
+
+    StatoEnum:
+      type: string
+      enum:
+        - INSERITO
+        - ELABORATO
+        - SOSPESO
+        - CHIUSO
