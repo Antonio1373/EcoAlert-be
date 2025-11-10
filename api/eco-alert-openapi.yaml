@@ -16,6 +16,77 @@ tags:
 
 paths:
 
+  /user/{id}/segnalazioni/{idSegnalazione}:
+    get:
+      tags:
+        - Utenti
+      summary: Ottiene il dettaglio di una segnalazione
+      description: >
+        Restituisce una segnalazione specifica.
+        - Un cittadino può vedere solo le proprie segnalazioni.
+        - Un ente può vedere solo le segnalazioni associate a sé.
+      operationId: getSegnalazioneById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID dell'utente
+          schema:
+            type: integer
+        - name: idSegnalazione
+          in: path
+          required: true
+          description: ID della segnalazione
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Dettaglio della segnalazione
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegnalazioneOutput'
+        '403':
+          description: Accesso non autorizzato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Segnalazione o utente non trovati
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user/{id}/segnalazioni:
+    get:
+      tags:
+        - Utenti
+      summary: Ottiene le segnalazioni associate all’utente
+      operationId: getSegnalazioniByUserId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista segnalazioni
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SegnalazioneOutput'
+        '404':
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /segnalazioni/{idSegnalazione}/stato:
     put:
       tags:
@@ -184,7 +255,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /user/{id}/segnalazioni:
+  /user/{id}/segnalazione:
     post:
       tags:
         - Segnalazioni
@@ -278,6 +349,9 @@ components:
     SegnalazioneInput:
       type: object
       properties:
+        titolo:
+          type: string
+          description: Titolo della segnalazione
         descrizione:
           type: string
           description: Testo della segnalazione
@@ -312,6 +386,9 @@ components:
         idEnte:
           type: integer
           description: ID dell'ente associato alla segnalazione
+        titolo:
+          type: string
+          description: Titolo della segnalazione
         descrizione:
           type: string
           description: Testo della segnalazione

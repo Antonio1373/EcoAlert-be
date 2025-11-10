@@ -14,6 +14,9 @@ public class SegnalazioneEntity {
     @Column(name = "id_Segnalazione")
     private Integer idSegnalazione;
 
+    @Column(name = "titolo", nullable = false)
+    private String titolo;
+
     @Column(name = "descrizione", nullable = false)
     private String descrizione;
 

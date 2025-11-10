@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import java.util.List;
 
 @Service
 @Log4j2
@@ -36,13 +37,16 @@ public class SegnalazioneService {
         log.info("Creazione segnalazione per utente con ID {}", idUtente);
 
         if (idUtente == null || input == null)
-            throw new IllegalArgumentException("ID utente o dati della segnalazione mancanti");
+            throw new IdODatiMancantiException("ID utente o dati della segnalazione mancanti");
+
+        if (!StringUtils.hasText(input.getTitolo()))
+            throw new TitoloMancanteException("Titolo obbligatorio");
+
         if (!StringUtils.hasText(input.getDescrizione()))
-            throw new IllegalArgumentException("Descrizione obbligatoria");
-        if (input.getLatitudine() == null || input.getLongitudine() == null)
-            throw new IllegalArgumentException("Coordinate obbligatorie");
+            throw new DescrizioneMancanteException("Descrizione obbligatoria");
+
         if (input.getIdEnte() == null)
-            throw new IllegalArgumentException("ID ente obbligatorio");
+            throw new EnteNonTrovatoException("ID ente obbligatorio");
 
         UtenteEntity utente = utenteDao.findById(idUtente)
                 .orElseThrow(() -> new UtenteNonTrovatoException("Utente con ID " + idUtente + " non trovato."));
@@ -54,7 +58,8 @@ public class SegnalazioneService {
                 .orElseThrow(() -> new EnteNonTrovatoException("Ente non trovato"));
 
         SegnalazioneEntity segnalazione = new SegnalazioneEntity();
-        segnalazione.setDescrizione(input.getDescrizione().trim());
+        segnalazione.setTitolo(input.getTitolo());
+        segnalazione.setDescrizione(input.getDescrizione());
         segnalazione.setLatitudine(input.getLatitudine());
         segnalazione.setLongitudine(input.getLongitudine());
         segnalazione.setCittadino((CittadinoEntity) utente); // mapping corretto
@@ -64,15 +69,7 @@ public class SegnalazioneService {
         SegnalazioneEntity salvata = segnalazioneDao.save(segnalazione);
         log.info("Segnalazione {} creata in stato {}", salvata.getIdSegnalazione(), salvata.getStato());
 
-        SegnalazioneOutput output = new SegnalazioneOutput();
-        output.setId(salvata.getIdSegnalazione());
-        output.setDescrizione(salvata.getDescrizione());
-        output.setLatitudine(salvata.getLatitudine());
-        output.setLongitudine(salvata.getLongitudine());
-        output.setStato(StatoEnum.valueOf(salvata.getStato().name())); // mappatura enum
-        output.setIdUtente(utente.getId());
-        output.setIdEnte(ente.getId());
-        return output;
+        return toOutput(salvata);
     }
 
     public SegnalazioneOutput aggiornaStatoSegnalazione(
@@ -92,23 +89,89 @@ public class SegnalazioneService {
 
         // Controllo autorizzazione: solo l'ente associato può aggiornare
         if (!segnalazione.getEnte().getId().equals(ente.getId())) {
-            throw new EnteSbagliatoException("Questo ente non può modificare la segnalazione");
+            throw new EnteNonAutorizzatoException("Questo ente non può modificare la segnalazione");
         }
 
         // Aggiorna stato
         segnalazione.setStato(nuovoStato);
         SegnalazioneEntity salvata = segnalazioneDao.save(segnalazione);
 
-        // Mappa output
-        SegnalazioneOutput output = new SegnalazioneOutput();
-        output.setId(salvata.getIdSegnalazione());
-        output.setDescrizione(salvata.getDescrizione());
-        output.setLatitudine(salvata.getLatitudine());
-        output.setLongitudine(salvata.getLongitudine());
-        output.setStato(StatoEnum.valueOf(salvata.getStato().name()));
-        output.setIdUtente(salvata.getCittadino().getId());
-        output.setIdEnte(salvata.getEnte().getId());
+        return toOutput(salvata);
+    }
 
+    private List<SegnalazioneOutput> mapToOutputList(List<SegnalazioneEntity> entities) {
+        return entities.stream().map(se -> {
+            SegnalazioneOutput output = new SegnalazioneOutput();
+            output.setId(se.getIdSegnalazione());
+            output.setTitolo(se.getTitolo());
+            output.setDescrizione(se.getDescrizione());
+            output.setLatitudine(se.getLatitudine());
+            output.setLongitudine(se.getLongitudine());
+            output.setStato(StatoEnum.valueOf(se.getStato().name()));
+            output.setIdUtente(se.getCittadino().getId());
+            output.setIdEnte(se.getEnte().getId());
+            return output;
+        }).toList();
+    }
+
+    public SegnalazioneOutput toOutput(SegnalazioneEntity entity) {
+        SegnalazioneOutput output = new SegnalazioneOutput();
+        output.setId(entity.getIdSegnalazione());
+        output.setTitolo(entity.getTitolo());
+        output.setDescrizione(entity.getDescrizione());
+        output.setLatitudine(entity.getLatitudine());
+        output.setLongitudine(entity.getLongitudine());
+        output.setStato(StatoEnum.valueOf(entity.getStato().name()));
+        output.setIdUtente(entity.getCittadino().getId());
+        output.setIdEnte(entity.getEnte().getId());
         return output;
     }
+
+
+    public List<SegnalazioneOutput> getSegnalazioniByUserId(Integer id) {
+        UtenteEntity utente = utenteDao.findById(id)
+                .orElseThrow(() -> new UtenteNonTrovatoException("Utente non trovato."));
+
+        if (utente instanceof CittadinoEntity) {
+            List<SegnalazioneEntity> segnalazioni = segnalazioneDao.findByCittadino_Id(id);
+            return mapToOutputList(segnalazioni);
+        }
+
+        if (utente instanceof EnteEntity) {
+            List<SegnalazioneEntity> segnalazioni = segnalazioneDao.findByEnte_Id(id);
+            return mapToOutputList(segnalazioni);
+        }
+
+        throw new RuntimeException("Ruolo utente non valido");
+    }
+
+    public SegnalazioneOutput getSegnalazioneById(Integer idUtente, Integer idSegnalazione) {
+
+        // Recupera la segnalazione
+        SegnalazioneEntity segnalazione = segnalazioneDao.findById(idSegnalazione)
+                .orElseThrow(() -> new SegnalazioneNonTrovataException("Segnalazione non trovata"));
+
+        // Recupera l'utente
+        UtenteEntity utente = utenteDao.findById(idUtente)
+                .orElseThrow(() -> new UtenteNonTrovatoException("Utente non trovato"));
+
+        // Controlla i permessi
+        if (utente instanceof CittadinoEntity) {
+            // Il cittadino può vedere solo le proprie segnalazioni
+            if (!segnalazione.getCittadino().getId().equals(idUtente)) {
+                throw new AccessoNonAutorizzatoException("Non puoi vedere questa segnalazione");
+            }
+        } else if (utente instanceof EnteEntity) {
+            // L'ente può vedere solo le segnalazioni associate al proprio ente
+            if (!segnalazione.getEnte().getId().equals(idUtente)) {
+                throw new AccessoNonAutorizzatoException("Non puoi vedere questa segnalazione");
+            }
+        } else {
+            throw new AccessoNonAutorizzatoException("Tipo utente non autorizzato");
+        }
+
+        // Converte Entity -> DTO
+        return toOutput(segnalazione);
+    }
+
 }

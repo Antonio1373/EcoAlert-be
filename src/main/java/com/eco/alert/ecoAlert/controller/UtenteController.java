@@ -1,5 +1,6 @@
 package com.eco.alert.ecoAlert.controller;
 
+import com.eco.alert.ecoAlert.service.SegnalazioneService;
 import com.eco.alert.ecoAlert.service.UserService;
 import com.ecoalert.api.UtentiApi;
 import com.ecoalert.model.*;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -17,6 +19,9 @@ public class UtenteController implements UtentiApi {
 
     @Autowired
     private UserService utenteService;
+
+    @Autowired
+    private SegnalazioneService segnalazioneService;
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
@@ -28,6 +33,21 @@ public class UtenteController implements UtentiApi {
         log.info("Richiesta dettaglio utente con ID {}", id);
         UtenteDettaglioOutput utente = utenteService.getUserById(id);
         return ResponseEntity.ok(utente);
+    }
+
+    @Override
+    public ResponseEntity<List<SegnalazioneOutput>> getSegnalazioniByUserId(Integer id) {
+        log.info("Richiesta lista segnalazioni dell'utente con ID {}", id);
+        return ResponseEntity.ok(segnalazioneService.getSegnalazioniByUserId(id));
+    }
+
+    @Override
+    public ResponseEntity<SegnalazioneOutput> getSegnalazioneById(Integer id, Integer idSegnalazione) {
+        log.info("Richiesta dettaglio segnalazione {} per utente {}", idSegnalazione, id);
+
+        SegnalazioneOutput segnalazione = segnalazioneService.getSegnalazioneById(id, idSegnalazione);
+
+        return ResponseEntity.ok(segnalazione);
     }
 
 }
