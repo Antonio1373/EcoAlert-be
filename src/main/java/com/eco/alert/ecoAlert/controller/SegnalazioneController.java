@@ -24,7 +24,7 @@ public class SegnalazioneController implements SegnalazioniApi {
             Integer id,
             SegnalazioneInput segnalazioneInput
     ) {
-        log.info("POST /user/{}/segnalazioni", id);
+        log.info("POST /user/{}/segnalazione", id);
         return ResponseEntity.status(201).body(segnalazioneService.creaSegnalazione(id, segnalazioneInput));
     }
 

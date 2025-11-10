@@ -49,8 +49,8 @@ public class ExceptionController {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(EnteSbagliatoException.class)
-    public ResponseEntity<Error> handleEnteSbagliato(EnteSbagliatoException ex) {
+    @ExceptionHandler(EnteNonAutorizzatoException.class)
+    public ResponseEntity<Error> handleEnteSbagliato(EnteNonAutorizzatoException ex) {
         Error error = new Error().detail("Ente non autorizzato").message(ex.getMessage());
         log.error("EnteSbagliatoException: {}", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
@@ -68,6 +68,34 @@ public class ExceptionController {
         Error error = new Error().detail("Segnalazione non trovata").message(ex.getMessage());
         log.error("SegnalazioneNonTrovataException: {}", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(IdODatiMancantiException.class)
+    public ResponseEntity<Error> handleDatiMancanti(IdODatiMancantiException ex) {
+        Error error = new Error().detail("ID utente o dati della segnalazione mancanti").message(ex.getMessage());
+        log.error("IdODatiMancantiException: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(TitoloMancanteException.class)
+    public ResponseEntity<Error> handleTitoloMancante(TitoloMancanteException ex) {
+        Error error = new Error().detail("Titolo obbligatorio").message(ex.getMessage());
+        log.error("TitoloMancanteException: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DescrizioneMancanteException.class)
+    public ResponseEntity<Error> handleDescrizioneMancante(DescrizioneMancanteException ex) {
+        Error error = new Error().detail("Descrizione obbligatoria").message(ex.getMessage());
+        log.error("DescrizioneMancanteException: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccessoNonAutorizzatoException.class)
+    public ResponseEntity<Error> handleAccessoNonAutorizzato(AccessoNonAutorizzatoException ex) {
+        Error error = new Error().detail("Non sei autorizzato").message(ex.getMessage());
+        log.error("AccessoNonAutorizzato: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
