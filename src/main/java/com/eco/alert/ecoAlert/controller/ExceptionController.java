@@ -98,6 +98,27 @@ public class ExceptionController {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(OperazioneNonPermessaException.class)
+    public ResponseEntity<Error> handleOperazioneNonPermessa(OperazioneNonPermessaException ex) {
+        Error error = new Error().detail("Operazione non Permessa").message(ex.getMessage());
+        log.error("OperazioneNonPermessa: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(StatoNonValidoException.class)
+    public ResponseEntity<Error> handleStatoNonValido(StatoNonValidoException ex) {
+        Error error = new Error().detail("Stato Non Valido.").message(ex.getMessage());
+        log.error("StatoNonValido: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CommentoNonTrovatoException.class)
+    public ResponseEntity<Error> handleCommentoNonTrovato(CommentoNonTrovatoException ex) {
+        Error error = new Error().detail("Commento non trovato.").message(ex.getMessage());
+        log.error("CommentoNonTrovato: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Error> handleGenericException(Exception ex) {
         Error error = new Error().detail("Errore interno").message(ex.getMessage());

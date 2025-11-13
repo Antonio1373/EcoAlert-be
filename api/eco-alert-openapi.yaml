@@ -13,10 +13,189 @@ tags:
     description: Login e registrazione
   - name: Utenti
     description: Informazioni sugli utenti
+  - name: Commenti
+    description: Gestione dei commenti
 
 paths:
 
+  /user/{id}/segnalazione/{idSegnalazione}/commenti:
+    post:
+      tags:
+        - Commenti
+      summary: Aggiunge un commento a una segnalazione
+      description: Cittadini o enti possono aggiungere commenti solo alle segnalazioni associate ai loro ID.
+      operationId: createCommento
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: idSegnalazione
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentoInput'
+      responses:
+        '201':
+          description: Commento creato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentoOutput'
+        '403':
+          description: Utente non autorizzato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Segnalazione o utente non trovati
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user/{id}/segnalazione/{idSegnalazione}/commenti/{idCommento}:
+    delete:
+      tags:
+        - Commenti
+      summary: Elimina un commento da una segnalazione
+      description: >
+        L'utente può eliminare solo i propri commenti sotto la segnalazione.
+      operationId: deleteCommento
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: idSegnalazione
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: idCommento
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Commento eliminato con successo
+        '403':
+          description: Utente non autorizzato a eliminare questo commento
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Commento, segnalazione o utente non trovati
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
   /user/{id}/segnalazioni/{idSegnalazione}:
+    delete:
+      tags:
+        - Segnalazioni
+      summary: Elimina una segnalazione chiusa appartenente al cittadino
+      description: >
+                    Un cittadino può eliminare **solo** una sua segnalazione **in stato CHIUSO**.
+                    Un ente non può eliminare alcuna segnalazione.
+      operationId: deleteSegnalazione
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: idSegnalazione
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Segnalazione eliminata con successo
+        '400':
+          description: La segnalazione non è in stato CHIUSO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: L'utente non è autorizzato a eliminare la segnalazione
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Utente o segnalazione non trovati
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Segnalazioni
+      summary: Modifica una segnalazione del cittadino
+      description: >
+        Un cittadino può modificare **solo le proprie segnalazioni non chiuse**.
+        Solo il titolo, la descrizione, la latitudine, la longitudine e l'ente associato possono essere aggiornati.
+      operationId: updateSegnalazione
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: idSegnalazione
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SegnalazioneInput'
+      responses:
+        '200':
+          description: Segnalazione aggiornata con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegnalazioneOutput'
+        '400':
+          description: Dati non validi o segnalazione chiusa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Utente non autorizzato a modificare la segnalazione
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Utente o segnalazione non trovati
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     get:
       tags:
         - Utenti
@@ -467,3 +646,20 @@ components:
         - ELABORATO
         - SOSPESO
         - CHIUSO
+
+    CommentoInput:
+      type: object
+      properties:
+        descrizione:
+          type: string
+          description: Testo del commento
+
+    CommentoOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        descrizione:
+          type: string
+        idSegnalazione:
+          type: integer

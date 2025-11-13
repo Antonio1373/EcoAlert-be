@@ -1,6 +1,5 @@
 package com.eco.alert.ecoAlert.controller;
 
-
 import com.eco.alert.ecoAlert.enums.StatoSegnalazione;
 import com.eco.alert.ecoAlert.service.SegnalazioneService;
 import com.ecoalert.api.SegnalazioniApi;
@@ -51,6 +50,22 @@ public class SegnalazioneController implements SegnalazioniApi {
 
         return ResponseEntity.ok(updated);
     }
+
+    @Override
+    public ResponseEntity<Void> deleteSegnalazione(Integer id, Integer idSegnalazione){
+        segnalazioneService.cancellaSegnalazione(id, idSegnalazione);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<SegnalazioneOutput> updateSegnalazione(
+            Integer id, Integer idSegnalazione, SegnalazioneInput input) {
+
+        SegnalazioneOutput out = segnalazioneService.modificaSegnalazione(id, idSegnalazione, input);
+        return ResponseEntity.ok(out);
+    }
+
+
 }
 
 

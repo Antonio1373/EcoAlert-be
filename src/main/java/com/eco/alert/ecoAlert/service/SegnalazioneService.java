@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -172,6 +174,68 @@ public class SegnalazioneService {
 
         // Converte Entity -> DTO
         return toOutput(segnalazione);
+    }
+
+    public void cancellaSegnalazione(Integer id, Integer idSegnalazione) throws OperazioneNonPermessaException {
+
+        UtenteEntity utente = utenteDao.findById(id)
+                .orElseThrow(() -> new UtenteNonTrovatoException("Utente con ID : " + id + "non trovato."));
+        if (!(utente instanceof CittadinoEntity)) {
+            throw new UtenteNonCittadinoException("Solo i cittadini possono eliminare una segnalazione.");
+        }
+
+        SegnalazioneEntity segnalazione = segnalazioneDao.findById(idSegnalazione)
+                .orElseThrow(() -> new SegnalazioneNonTrovataException("Segnalazione con ID : " + idSegnalazione + "non trovata.")
+                );
+        if (!Objects.equals(segnalazione.getCittadino().getId(), id)) {
+            throw new OperazioneNonPermessaException("Non puoi eliminare una segnalazione che non ti appartiene.");
+        }
+        if (segnalazione.getStato() != StatoSegnalazione.CHIUSO) {
+            throw new StatoNonValidoException("Per eliminare, la segnalazione deve essere in stato CHIUSO.");
+        }
+
+        segnalazioneDao.delete(segnalazione);
+    }
+
+    @Transactional
+    public SegnalazioneOutput modificaSegnalazione(Integer id, Integer idSegnalazione, SegnalazioneInput input) {
+
+        UtenteEntity utente = utenteDao.findById(id)
+                .orElseThrow(() ->
+                        new UtenteNonTrovatoException("Utente con ID " + id + " non trovato.")
+                );
+
+        if (!(utente instanceof CittadinoEntity)) {
+            throw new OperazioneNonPermessaException("Solo i cittadini possono modificare una segnalazione.");
+        }
+
+        SegnalazioneEntity segnalazione = segnalazioneDao.findById(idSegnalazione)
+                .orElseThrow(() ->
+                        new SegnalazioneNonTrovataException("Segnalazione con ID " + idSegnalazione + " non trovata.")
+                );
+
+        if (!Objects.equals(segnalazione.getCittadino().getId(), id)) {
+            throw new OperazioneNonPermessaException("Non puoi modificare una segnalazione che non ti appartiene.");
+        }
+
+        if (segnalazione.getStato() == StatoSegnalazione.CHIUSO) {
+            throw new StatoNonValidoException("Non puoi modificare una segnalazione chiusa.");
+        }
+
+        // Aggiornamento campi
+        if (input.getTitolo() != null) segnalazione.setTitolo(input.getTitolo());
+        if (input.getDescrizione() != null) segnalazione.setDescrizione(input.getDescrizione());
+        if (input.getLatitudine() != null) segnalazione.setLatitudine(input.getLatitudine());
+        if (input.getLongitudine() != null) segnalazione.setLongitudine(input.getLongitudine());
+
+        if (input.getIdEnte() != null) {
+            EnteEntity ente = enteDao.findById(input.getIdEnte())
+                    .orElseThrow(() -> new EnteNonTrovatoException("Ente non trovato."));
+            segnalazione.setEnte(ente);
+        }
+
+        SegnalazioneEntity salvata = segnalazioneDao.save(segnalazione);
+        return toOutput(salvata);
     }
 
 }
