@@ -3,6 +3,7 @@ package com.eco.alert.ecoAlert.entity;
 import com.eco.alert.ecoAlert.enums.StatoSegnalazione;
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.List;
 
 @Data
 @Entity
@@ -41,4 +42,9 @@ public class SegnalazioneEntity {
     @ManyToOne
     @JoinColumn(name = "id_ente", nullable = false)
     private EnteEntity ente;
+
+    //➡️ se elimini una Segnalazione, spariscono anche i Commenti legati.
+    //➡️ se elimini un Utente, si eliminano i suoi Commenti o Segnalazioni.
+    @OneToMany(mappedBy = "segnalazione", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentoEntity> commenti;
 }
