@@ -5,6 +5,7 @@ import com.eco.alert.ecoAlert.service.SegnalazioneService;
 import com.ecoalert.api.SegnalazioniApi;
 import com.ecoalert.model.SegnalazioneInput;
 import com.ecoalert.model.SegnalazioneOutput;
+import com.ecoalert.model.SegnalazioneUpdateInputEnte;
 import com.ecoalert.model.StatoUpdateInput;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,24 +29,28 @@ public class SegnalazioneController implements SegnalazioniApi {
     }
 
     @Override
-    public ResponseEntity<SegnalazioneOutput> updateSegnalazioneStatus(
+    public ResponseEntity<SegnalazioneOutput> updateSegnalazioneEnte(
             Integer idSegnalazione,
             Integer idEnte,
-            StatoUpdateInput statoUpdateInput
+            SegnalazioneUpdateInputEnte segnalazioneUpdateInputEnte
     ) {
         System.out.println("Controller → idSegnalazione: " + idSegnalazione);
         System.out.println("Controller → idEnte: " + idEnte);
-        System.out.println("Controller → stato richiesto: " + statoUpdateInput.getStato());
+        System.out.println("Controller → stato richiesto: " + segnalazioneUpdateInputEnte.getStato());
 
         // Converti enum OpenAPI → enum interno
         StatoSegnalazione nuovoStato =
-                StatoSegnalazione.valueOf(statoUpdateInput.getStato().name());
+                StatoSegnalazione.valueOf(segnalazioneUpdateInputEnte.getStato().name());
+
+        //ottieni la ditta
+        String nuovaDitta = segnalazioneUpdateInputEnte.getDitta();
 
         SegnalazioneOutput updated =
                 segnalazioneService.aggiornaStatoSegnalazione(
                         idEnte,
                         idSegnalazione,
-                        nuovoStato
+                        nuovoStato,
+                        nuovaDitta
                 );
 
         return ResponseEntity.ok(updated);

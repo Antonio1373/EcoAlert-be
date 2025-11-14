@@ -266,13 +266,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /segnalazioni/{idSegnalazione}/stato:
+  /segnalazioni/{idSegnalazione}/ente:
     put:
       tags:
         - Segnalazioni
-      summary: Aggiorna lo stato di una segnalazione
-      description: Permette a un ente di aggiornare lo stato di una segnalazione (da INSERITO a ELABORATO, SOSPESO o CHIUSO)
-      operationId: updateSegnalazioneStatus
+      summary: Aggiorna lo stato e/o la ditta di una segnalazione
+      description: >
+        Permette a un ente di aggiornare lo stato di una segnalazione (da INSERITO a ELABORATO, SOSPESO o CHIUSO)
+        e di inserire la ditta che risolve la segnalazione.
+      operationId: updateSegnalazioneEnte
       parameters:
         - name: idSegnalazione
           in: path
@@ -289,10 +291,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StatoUpdateInput'
+              $ref: '#/components/schemas/SegnalazioneUpdateInputEnte'
       responses:
         '200':
-          description: Stato aggiornato con successo
+          description: Stato e/o ditta aggiornati con successo
           content:
             application/json:
               schema:
@@ -584,6 +586,9 @@ components:
         stato:
           $ref: '#/components/schemas/StatoEnum'
           description: Stato della segnalazione
+        ditta:
+          type: string
+          description: Ditta della segnalazione
 
     UtenteDettaglioOutput:
       type: object
@@ -633,11 +638,15 @@ components:
         ruolo:
           type: string
 
-    StatoUpdateInput:
+    SegnalazioneUpdateInputEnte:
       type: object
       properties:
         stato:
           $ref: '#/components/schemas/StatoEnum'
+          description: Nuovo stato della segnalazione (opzionale)
+        ditta:
+          type: string
+          description: Nome della ditta che gestisce la segnalazione (opzionale)
 
     StatoEnum:
       type: string

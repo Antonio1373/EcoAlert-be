@@ -4,6 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
+/**
+ * Rappresenta un cittadino del sistema.
+ * Estende UtenteEntity tramite ereditarietà JOINED.
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
@@ -22,4 +28,11 @@ public class CittadinoEntity extends UtenteEntity{
 
     @Column(name = "citta")
     private String citta;
+
+    /**
+     * Segnalazioni create dal cittadino.
+     * Se il cittadino viene eliminato, vengono eliminate tutte le sue segnalazioni.
+     */
+    @OneToMany(mappedBy = "cittadino", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<SegnalazioneEntity> segnalazioni;
 }
