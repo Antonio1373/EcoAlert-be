@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import java.util.List;
 
+/**
+ * Entità base per tutti gli utenti del sistema (Cittadino ed Ente).
+ * Implementa ereditarietà JOINED per generare una tabella specifica
+ * per ogni sottoclasse mantenendo una struttura relazionale pulita.
+ */
 @Data
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -25,4 +31,11 @@ public class UtenteEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
+    /**
+     * Commenti scritti da questo utente su varie segnalazioni.
+     * cascade = REMOVE → se un utente viene eliminato,
+     * vengono eliminati anche i suoi commenti.
+     */
+    @OneToMany(mappedBy = "utente", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<CommentoEntity> commenti;
 }

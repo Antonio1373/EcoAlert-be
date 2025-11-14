@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
 
+/**
+ * Rappresenta una segnalazione creata da un cittadino e gestita da un ente.
+ */
 @Data
 @Entity
 @Table(name = "segnalazione")
@@ -27,6 +30,9 @@ public class SegnalazioneEntity {
     @Column(name = "longitudine", nullable = false)
     private Double longitudine;
 
+    @Column(name = "ditta")
+    private String ditta;
+
     /**
      * Stato corrente della segnalazione.
      * Salvato come stringa nel database.
@@ -43,8 +49,8 @@ public class SegnalazioneEntity {
     @JoinColumn(name = "id_ente", nullable = false)
     private EnteEntity ente;
 
-    //➡️ se elimini una Segnalazione, spariscono anche i Commenti legati.
-    //➡️ se elimini un Utente, si eliminano i suoi Commenti o Segnalazioni.
-    @OneToMany(mappedBy = "segnalazione", cascade = CascadeType.ALL, orphanRemoval = true)
+    // se elimini una Segnalazione, spariscono anche i Commenti legati.
+    // se elimini un Utente, si eliminano i suoi Commenti o Segnalazioni.
+    @OneToMany(mappedBy = "segnalazione", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CommentoEntity> commenti;
 }

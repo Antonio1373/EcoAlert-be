@@ -4,6 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
+/**
+ * Rappresenta un ente che gestisce le segnalazioni.
+ * Estende UtenteEntity tramite ereditarietà JOINED.
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
@@ -19,4 +25,12 @@ public class EnteEntity extends UtenteEntity{
 
     @Column(name = "nazione")
     private String nazioneEnte;
+
+    /**
+     * Segnalazioni gestite dall’ente.
+     * Nessun cascade → le segnalazioni non devono essere eliminate
+     * se un ente viene eliminato.
+     */
+    @OneToMany(mappedBy = "ente")
+    private List<SegnalazioneEntity> segnalazioniGestite;
 }

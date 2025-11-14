@@ -77,7 +77,8 @@ public class SegnalazioneService {
     public SegnalazioneOutput aggiornaStatoSegnalazione(
             Integer idEnte,
             Integer idSegnalazione,
-            StatoSegnalazione nuovoStato) {
+            StatoSegnalazione nuovoStato,
+            String nuovaDitta) {
 
         log.info("Aggiornamento segnalazione {} da parte dell'ente {}", idSegnalazione, idEnte);
 
@@ -94,10 +95,15 @@ public class SegnalazioneService {
             throw new EnteNonAutorizzatoException("Questo ente non può modificare la segnalazione");
         }
 
-        // Aggiorna stato
-        segnalazione.setStato(nuovoStato);
-        SegnalazioneEntity salvata = segnalazioneDao.save(segnalazione);
+        if (nuovoStato != null) {
+            segnalazione.setStato(nuovoStato);
+        }
 
+        if (nuovaDitta != null && !nuovaDitta.isBlank()) {
+            segnalazione.setDitta(nuovaDitta);
+        }
+
+        SegnalazioneEntity salvata = segnalazioneDao.save(segnalazione);
         return toOutput(salvata);
     }
 
@@ -112,6 +118,7 @@ public class SegnalazioneService {
             output.setStato(StatoEnum.valueOf(se.getStato().name()));
             output.setIdUtente(se.getCittadino().getId());
             output.setIdEnte(se.getEnte().getId());
+            output.setDitta(se.getDitta());
             return output;
         }).toList();
     }
@@ -126,6 +133,7 @@ public class SegnalazioneService {
         output.setStato(StatoEnum.valueOf(entity.getStato().name()));
         output.setIdUtente(entity.getCittadino().getId());
         output.setIdEnte(entity.getEnte().getId());
+        output.setDitta(entity.getDitta());
         return output;
     }
 
@@ -179,7 +187,7 @@ public class SegnalazioneService {
     public void cancellaSegnalazione(Integer id, Integer idSegnalazione) throws OperazioneNonPermessaException {
 
         UtenteEntity utente = utenteDao.findById(id)
-                .orElseThrow(() -> new UtenteNonTrovatoException("Utente con ID : " + id + "non trovato."));
+                .orElseThrow(() -> new UtenteNonTrovatoException("Utente con ID : " + id + " non trovato."));
         if (!(utente instanceof CittadinoEntity)) {
             throw new UtenteNonCittadinoException("Solo i cittadini possono eliminare una segnalazione.");
         }
