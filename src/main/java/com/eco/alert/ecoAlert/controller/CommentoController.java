@@ -31,7 +31,6 @@ public class CommentoController implements CommentiApi {
         CommentoOutput out = new CommentoOutput();
         out.setId(entity.getIdCommento());
         out.setDescrizione(entity.getDescrizione());
-        out.setIdSegnalazione(entity.getSegnalazione().getIdSegnalazione());
 
         return ResponseEntity.status(201).body(out);
     }

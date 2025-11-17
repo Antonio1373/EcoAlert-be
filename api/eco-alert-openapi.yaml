@@ -107,9 +107,9 @@ paths:
     delete:
       tags:
         - Segnalazioni
-      summary: Elimina una segnalazione chiusa appartenente al cittadino
+      summary: Elimina una segnalazione appartenente al cittadino
       description: >
-                    Un cittadino può eliminare **solo** una sua segnalazione **in stato CHIUSO**.
+                    Un cittadino può eliminare **solo** una sua segnalazione **non in stato di inserito**.
                     Un ente non può eliminare alcuna segnalazione.
       operationId: deleteSegnalazione
       parameters:
@@ -127,7 +127,7 @@ paths:
         '204':
           description: Segnalazione eliminata con successo
         '400':
-          description: La segnalazione non è in stato CHIUSO
+          description: La segnalazione è in stato INSERITO
           content:
             application/json:
               schema:
@@ -589,6 +589,10 @@ components:
         ditta:
           type: string
           description: Ditta della segnalazione
+        commenti: # ← LISTA DEI COMMENTI
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentoOutput'
 
     UtenteDettaglioOutput:
       type: object
@@ -670,5 +674,3 @@ components:
           type: integer
         descrizione:
           type: string
-        idSegnalazione:
-          type: integer

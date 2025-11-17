@@ -1,14 +1,13 @@
 package com.eco.alert.ecoAlert.service;
 
+import com.eco.alert.ecoAlert.dao.CommentoDao;
 import com.eco.alert.ecoAlert.dao.EnteDao;
 import com.eco.alert.ecoAlert.dao.SegnalazioneDao;
 import com.eco.alert.ecoAlert.dao.UtenteDao;
-import com.eco.alert.ecoAlert.entity.EnteEntity;
-import com.eco.alert.ecoAlert.entity.SegnalazioneEntity;
-import com.eco.alert.ecoAlert.entity.UtenteEntity;
-import com.eco.alert.ecoAlert.entity.CittadinoEntity;
+import com.eco.alert.ecoAlert.entity.*;
 import com.eco.alert.ecoAlert.enums.StatoSegnalazione;
 import com.eco.alert.ecoAlert.exception.*;
+import com.ecoalert.model.CommentoOutput;
 import com.ecoalert.model.SegnalazioneInput;
 import com.ecoalert.model.SegnalazioneOutput;
 import com.ecoalert.model.StatoEnum;
@@ -123,6 +122,17 @@ public class SegnalazioneService {
         }).toList();
     }
 
+    // Mappa i commenti nella DTO
+    public List<CommentoOutput> commentiOutputList(List<CommentoEntity> entities) {
+        return entities.stream().map(commentoEntity -> {
+            CommentoOutput output = new CommentoOutput();
+            output.setId(commentoEntity.getIdCommento());
+            output.setDescrizione(commentoEntity.getDescrizione());
+            return output;
+
+        }).toList();
+    }
+
     public SegnalazioneOutput toOutput(SegnalazioneEntity entity) {
         SegnalazioneOutput output = new SegnalazioneOutput();
         output.setId(entity.getIdSegnalazione());
@@ -134,9 +144,9 @@ public class SegnalazioneService {
         output.setIdUtente(entity.getCittadino().getId());
         output.setIdEnte(entity.getEnte().getId());
         output.setDitta(entity.getDitta());
+        output.commenti(commentiOutputList(entity.getCommenti()));
         return output;
     }
-
 
     public List<SegnalazioneOutput> getSegnalazioniByUserId(Integer id) {
         UtenteEntity utente = utenteDao.findById(id)
@@ -167,12 +177,10 @@ public class SegnalazioneService {
 
         // Controlla i permessi
         if (utente instanceof CittadinoEntity) {
-            // Il cittadino può vedere solo le proprie segnalazioni
             if (!segnalazione.getCittadino().getId().equals(idUtente)) {
                 throw new AccessoNonAutorizzatoException("Non puoi vedere questa segnalazione");
             }
         } else if (utente instanceof EnteEntity) {
-            // L'ente può vedere solo le segnalazioni associate al proprio ente
             if (!segnalazione.getEnte().getId().equals(idUtente)) {
                 throw new AccessoNonAutorizzatoException("Non puoi vedere questa segnalazione");
             }
@@ -180,7 +188,6 @@ public class SegnalazioneService {
             throw new AccessoNonAutorizzatoException("Tipo utente non autorizzato");
         }
 
-        // Converte Entity -> DTO
         return toOutput(segnalazione);
     }
 
