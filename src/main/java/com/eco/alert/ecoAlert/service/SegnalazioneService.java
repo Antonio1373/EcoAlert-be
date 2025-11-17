@@ -193,15 +193,16 @@ public class SegnalazioneService {
         }
 
         SegnalazioneEntity segnalazione = segnalazioneDao.findById(idSegnalazione)
-                .orElseThrow(() -> new SegnalazioneNonTrovataException("Segnalazione con ID : " + idSegnalazione + "non trovata.")
-                );
+                .orElseThrow(() -> new SegnalazioneNonTrovataException("Segnalazione con ID : " + idSegnalazione + " non trovata."));
+
         if (!Objects.equals(segnalazione.getCittadino().getId(), id)) {
             throw new OperazioneNonPermessaException("Non puoi eliminare una segnalazione che non ti appartiene.");
-        }
-        if (segnalazione.getStato() != StatoSegnalazione.CHIUSO) {
-            throw new StatoNonValidoException("Per eliminare, la segnalazione deve essere in stato CHIUSO.");
+
         }
 
+        if (segnalazione.getStato() == StatoSegnalazione.INSERITO) {
+            throw new StatoNonValidoException("Non puoi eliminare una segnalazione in stato INSERITO.");
+        }
         segnalazioneDao.delete(segnalazione);
     }
 
