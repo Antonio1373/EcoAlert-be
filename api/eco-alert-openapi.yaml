@@ -272,7 +272,7 @@ paths:
         - Segnalazioni
       summary: Aggiorna lo stato e/o la ditta di una segnalazione
       description: >
-        Permette a un ente di aggiornare lo stato di una segnalazione (da INSERITO a ELABORATO, SOSPESO o CHIUSO)
+        Permette a un ente di aggiornare lo stato di una segnalazione (da INSERITO a PRESO_IN_CARICO, SOSPESO o CHIUSO)
         e di inserire la ditta che risolve la segnalazione.
       operationId: updateSegnalazioneEnte
       parameters:
@@ -652,7 +652,7 @@ components:
       type: string
       enum:
         - INSERITO
-        - ELABORATO
+        - PRESO_IN_CARICO
         - SOSPESO
         - CHIUSO
 

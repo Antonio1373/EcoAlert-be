@@ -5,7 +5,7 @@ package com.eco.alert.ecoAlert.enums;
  */
 public enum StatoSegnalazione {
     INSERITO,     // Stato iniziale al momento della creazione.
-    ELABORATO,    // L'ente ha preso in carico la segnalazione
+    PRESO_IN_CARICO,    // L'ente ha preso in carico la segnalazione
     SOSPESO,      // Segnalazione temporaneamente sospesa
     CHIUSO;       // Segnalazione conclusa
 
