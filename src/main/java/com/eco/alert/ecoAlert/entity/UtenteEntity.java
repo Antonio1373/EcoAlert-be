@@ -30,12 +30,4 @@ public class UtenteEntity {
     @NotBlank
     @Column(name = "password", nullable = false)
     private String password;
-
-    /**
-     * Commenti scritti da questo utente su varie segnalazioni.
-     * cascade = REMOVE → se un utente viene eliminato,
-     * vengono eliminati anche i suoi commenti.
-     */
-    @OneToMany(mappedBy = "utente", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<CommentoEntity> commenti;
 }
