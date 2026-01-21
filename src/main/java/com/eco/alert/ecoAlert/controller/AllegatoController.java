@@ -34,14 +34,6 @@ public class AllegatoController implements AllegatiApi {
     }
 
     @Override
-    public ResponseEntity<List<AllegatoEntity>> getAllegatiBySegnalazione(
-            Integer idSegnalazione
-    ) {
-        log.info("Richiesta lista segnalazioni dell'utente con ID {}", idSegnalazione);
-        return ResponseEntity.ok(allegatoService.getAllegatiBySegnalazione(idSegnalazione));
-    }
-
-    @Override
     public ResponseEntity<Resource> downloadAllegato(
             Integer idAllegato
     ) {

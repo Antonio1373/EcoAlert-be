@@ -54,35 +54,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AllegatoOutput'
-
-  /segnalazioni/{idSegnalazione}/allegati:
-    get:
-      tags:
-        - Allegati
-      summary: Ottiene la lista degli allegati di una segnalazione
-      operationId: getAllegatiBySegnalazione
-      parameters:
-        - name: idSegnalazione
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Lista allegati
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AllegatoOutput'
-        '404':
-          description: Segnalazione non trovata
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
   /allegati/{idAllegato}:
     get:
       tags:
@@ -229,8 +200,8 @@ paths:
         - Segnalazioni
       summary: Elimina una segnalazione appartenente al cittadino
       description: >
-                    Un cittadino può eliminare **solo** una sua segnalazione **non in stato di inserito**.
-                    Un ente non può eliminare alcuna segnalazione.
+        Un cittadino può eliminare **solo** una sua segnalazione **non in stato di inserito**.
+        Un ente non può eliminare alcuna segnalazione.
       operationId: deleteSegnalazione
       parameters:
         - name: id
@@ -815,5 +786,3 @@ components:
         dataCaricamento:
           type: string
           format: date-time
-
-

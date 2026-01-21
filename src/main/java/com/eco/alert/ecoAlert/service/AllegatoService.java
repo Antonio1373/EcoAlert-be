@@ -66,25 +66,6 @@ public class AllegatoService {
         }
     }
 
-    // ======================
-    // RESTITUISCI ALLEGATI
-    // ======================
-    public List<AllegatoEntity> getAllegatiBySegnalazione(Integer idSegnalazione) {
-        log.info("Recupero allegati per segnalazione {}", idSegnalazione);
-
-        return allegatoDao.findBySegnalazioneIdSegnalazione(idSegnalazione);
-    }
-
-    public AllegatoEntity getAllegato(Integer idAllegato) {
-        log.info("Recupero allegato {}", idAllegato);
-
-        return allegatoDao.findById(idAllegato)
-                .orElseThrow(() ->
-                        new AllegatoNonTrovatoException("Allegato non trovato")
-                );
-    }
-
-    //CARICA ALLEGATO
     public ResponseEntity<Resource> downloadAllegato(Integer idAllegato) {
 
         AllegatoEntity allegato = allegatoDao.findById(idAllegato)
