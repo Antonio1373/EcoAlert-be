@@ -1,22 +1,19 @@
 package com.eco.alert.ecoAlert.service;
 
-import com.eco.alert.ecoAlert.dao.CommentoDao;
 import com.eco.alert.ecoAlert.dao.EnteDao;
 import com.eco.alert.ecoAlert.dao.SegnalazioneDao;
 import com.eco.alert.ecoAlert.dao.UtenteDao;
 import com.eco.alert.ecoAlert.entity.*;
 import com.eco.alert.ecoAlert.enums.StatoSegnalazione;
 import com.eco.alert.ecoAlert.exception.*;
-import com.ecoalert.model.CommentoOutput;
-import com.ecoalert.model.SegnalazioneInput;
-import com.ecoalert.model.SegnalazioneOutput;
-import com.ecoalert.model.StatoEnum;
+import com.ecoalert.model.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -124,13 +121,33 @@ public class SegnalazioneService {
 
     // Mappa i commenti nella DTO
     public List<CommentoOutput> commentiOutputList(List<CommentoEntity> entities) {
-        return entities.stream().map(commentoEntity -> {
-            CommentoOutput output = new CommentoOutput();
-            output.setId(commentoEntity.getIdCommento());
-            output.setDescrizione(commentoEntity.getDescrizione());
-            return output;
+        if (entities == null) {
+            return Collections.emptyList();
+        }
+        return entities.stream()
+                .map(commentoEntity -> {
+                    CommentoOutput output = new CommentoOutput();
+                    output.setId(commentoEntity.getIdCommento());
+                    output.setDescrizione(commentoEntity.getDescrizione());
+                    output.setIdUtente(commentoEntity.getUtente().getId());
+                    return output;
+                })
+                .toList();
+    }
 
-        }).toList();
+    // Mappa i commenti nella DTO
+    public List<AllegatoOutput> allegatiOutputList(List<AllegatoEntity> entities) {
+        if (entities == null) {
+            return Collections.emptyList();
+        }
+        return entities.stream()
+                .map(allegatoEntity -> {
+                    AllegatoOutput output = new AllegatoOutput();
+                    output.setId(allegatoEntity.getId_allegato());
+                    output.setNomeFile(allegatoEntity.getNomeFile());
+                    return output;
+                })
+                .toList();
     }
 
     public SegnalazioneOutput toOutput(SegnalazioneEntity entity) {
@@ -145,6 +162,7 @@ public class SegnalazioneService {
         output.setIdEnte(entity.getEnte().getId());
         output.setDitta(entity.getDitta());
         output.commenti(commentiOutputList(entity.getCommenti()));
+        output.setAllegati(allegatiOutputList(entity.getAllegati()));
         return output;
     }
 
@@ -207,8 +225,10 @@ public class SegnalazioneService {
 
         }
 
-        if (segnalazione.getStato() == StatoSegnalazione.INSERITO) {
-            throw new StatoNonValidoException("Non puoi eliminare una segnalazione in stato INSERITO.");
+        if (segnalazione.getStato() != StatoSegnalazione.INSERITO && segnalazione.getStato() != StatoSegnalazione.CHIUSO) {
+            throw new StatoNonValidoException(
+                    "Non puoi eliminare una segnalazione in stato " + segnalazione.getStato()
+            );
         }
         segnalazioneDao.delete(segnalazione);
     }
@@ -253,5 +273,4 @@ public class SegnalazioneService {
         SegnalazioneEntity salvata = segnalazioneDao.save(segnalazione);
         return toOutput(salvata);
     }
-
 }

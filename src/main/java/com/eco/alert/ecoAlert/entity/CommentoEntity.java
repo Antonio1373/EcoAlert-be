@@ -33,5 +33,4 @@ public class CommentoEntity {
     @ManyToOne
     @JoinColumn(name="id_Segnalazione")
     private SegnalazioneEntity segnalazione;
-
 }

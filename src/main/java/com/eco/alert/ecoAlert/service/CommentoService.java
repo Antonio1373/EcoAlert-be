@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Log4j2
 @Service
 public class CommentoService {
@@ -51,8 +50,6 @@ public class CommentoService {
 
         return commentoDao.save(commento);
     }
-
-
 
     public void cancellaCommento(Integer idUtente, Integer idSegnalazione, Integer idCommento) {
         CommentoEntity commento = commentoDao.findById(idCommento)

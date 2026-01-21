@@ -53,4 +53,7 @@ public class SegnalazioneEntity {
     // se elimini un Utente, si eliminano i suoi Commenti o Segnalazioni.
     @OneToMany(mappedBy = "segnalazione", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CommentoEntity> commenti;
+
+    @OneToMany(mappedBy = "segnalazione", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<AllegatoEntity> allegati;
 }
