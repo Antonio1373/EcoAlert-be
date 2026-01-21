@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +40,7 @@ public class UtenteController implements UtentiApi {
         return ResponseEntity.ok(segnalazioneService.getSegnalazioniByUserId(id));
     }
 
+
     @Override
     public ResponseEntity<SegnalazioneOutput> getSegnalazioneById(Integer id, Integer idSegnalazione) {
         log.info("Richiesta dettaglio segnalazione {} per utente {}", idSegnalazione, id);
@@ -49,5 +49,4 @@ public class UtenteController implements UtentiApi {
 
         return ResponseEntity.ok(segnalazione);
     }
-
 }
